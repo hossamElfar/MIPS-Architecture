@@ -1,22 +1,21 @@
-
 public class ControlUnit {
-	
-	boolean PCSrc ;
+
+	boolean PCSrc;
 	boolean ALUSrc;
 	String ALUOperation;
 	boolean MemWrite;
 	boolean MemtoReg;
 	boolean MemRead;
 	boolean RegWrite;
-	
-	public ControlUnit(){
-		 this.PCSrc =false;
-		 this.ALUSrc=false;
-		 this.ALUOperation="0000";
-		 this.MemWrite =false;
-		 this.MemtoReg=false;
-		 this.MemRead=false;
-		 this.RegWrite=false;
+
+	public ControlUnit() {
+		this.PCSrc = false;
+		this.ALUSrc = false;
+		this.ALUOperation = "0000";
+		this.MemWrite = false;
+		this.MemtoReg = false;
+		this.MemRead = false;
+		this.RegWrite = false;
 	}
 
 	public boolean isPCSrc() {
@@ -73,11 +72,6 @@ public class ControlUnit {
 
 	public void setRegWrite(boolean regWrite) {
 		RegWrite = regWrite;
-	}
-
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
 	}
 
 }
