@@ -16,7 +16,7 @@ public class ControlUnit implements Serializable{
 	public ControlUnit() {
 		this.PCSrc = false;
 		this.ALUSrc = false;
-		this.ALUOperation = "0000";
+		this.ALUOperation = "00";
 		this.MemWrite = false;
 		this.MemtoReg = false;
 		this.MemRead = false;
