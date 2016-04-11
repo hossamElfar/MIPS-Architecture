@@ -14,14 +14,22 @@ public class DataMemory implements Serializable {
 	String adress;
 	String data;
 
-	public DataMemory(Hashtable<String, String> memory, boolean memWrite,
+	public DataMemory(boolean memWrite,
 			boolean memRead, String adress, String data) {
 		super();
-		this.memory = memory;
+		this.memory = new Hashtable<String, String>();
 		MemWrite = memWrite;
 		MemRead = memRead;
 		this.adress = adress;
 		this.data = data;
+	}
+	public DataMemory() {
+		super();
+		this.memory = new Hashtable<String, String>();
+		MemWrite = false;
+		MemRead = false;
+		this.adress = "";
+		this.data = "";
 	}
 
 	public Hashtable<String, String> getMemory() {
