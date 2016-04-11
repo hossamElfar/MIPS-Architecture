@@ -35,7 +35,7 @@ public class ControlUnit implements Serializable{
 		return ALUSrc;
 	}
 	public void save() throws IOException {
-		String fileLocation = "memory.ser"; // To be Modified
+		String fileLocation = "CU.ser"; // To be Modified
 		FileOutputStream fileOut = new FileOutputStream(fileLocation);
 		ObjectOutputStream os = new ObjectOutputStream(fileOut);
 		os.writeObject(this);
