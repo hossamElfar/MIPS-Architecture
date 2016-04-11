@@ -1,4 +1,9 @@
-public class ControlUnit {
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
+public class ControlUnit implements Serializable{
 
 	boolean PCSrc;
 	boolean ALUSrc;
@@ -28,6 +33,12 @@ public class ControlUnit {
 
 	public boolean isALUSrc() {
 		return ALUSrc;
+	}
+	public void save() throws IOException {
+		String fileLocation = "memory.ser"; // To be Modified
+		FileOutputStream fileOut = new FileOutputStream(fileLocation);
+		ObjectOutputStream os = new ObjectOutputStream(fileOut);
+		os.writeObject(this);
 	}
 
 	public void setALUSrc(boolean aLUSrc) {
