@@ -5,12 +5,10 @@ import java.util.ArrayList;
 
 public class InstructionMemory {
 	
-	private ArrayList<String> instructions;
-	private int nextIndex;
+	ArrayList<String> instructions;
 	
 	public InstructionMemory(String fileName) throws IOException{
 		instructions = new ArrayList<String>();
-		nextIndex = 0;
 		readTextFile(fileName);
 	}
 	
@@ -22,16 +20,19 @@ public class InstructionMemory {
 			if(line == null){
 				break;
 			}
-			instructions.add(line);
+			instructions.add(line.substring(0,4));
+			instructions.add(line.substring(4,8));
+			instructions.add(line.substring(8,12));
+			instructions.add(line.substring(12,16));
 		}
 		br.close();
 	}
 	
-	public String fetch(){
+	public String fetch(int pc){
 		if(instructions.size() == 0){
 			return null;
 		}
-		return instructions.get(nextIndex++);
+		return instructions.get(pc) + instructions.get(pc+1) + instructions.get(pc+2) + instructions.get(pc+3);
 	}
 	
 	public String toString(){
@@ -40,8 +41,8 @@ public class InstructionMemory {
 	
 	public static void main(String[] args) throws IOException {
 		InstructionMemory memory = new InstructionMemory("inst.txt");
-		System.out.println(memory.fetch());
-		System.out.println(memory.fetch());
+		System.out.println(memory.fetch(0));
+		System.out.println(memory.fetch(1));
 	}
 	
 }
