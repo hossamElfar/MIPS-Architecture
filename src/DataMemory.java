@@ -14,15 +14,7 @@ public class DataMemory implements Serializable {
 	String adress;
 	String data;
 
-	public DataMemory(boolean memWrite,
-			boolean memRead, String adress, String data) {
-		super();
-		this.memory = new Hashtable<String, String>();
-		MemWrite = memWrite;
-		MemRead = memRead;
-		this.adress = adress;
-		this.data = data;
-	}
+
 	public DataMemory() {
 		super();
 		this.memory = new Hashtable<String, String>();
@@ -31,6 +23,7 @@ public class DataMemory implements Serializable {
 		this.adress = "";
 		this.data = "";
 	}
+
 
 	public Hashtable<String, String> getMemory() {
 		return memory;
