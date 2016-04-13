@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 /ControlUnit.class
 /InstructionMemory.class
 /MUX.class
@@ -8,4 +10,5 @@
 /Adder.class
 /IFID.class
 /RegisterFile.class
+>>>>>>> 6fd6c88be9e7a64c31de93eccc6bad8f7fe0210a
 /DataMemory.class
