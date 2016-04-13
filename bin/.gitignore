@@ -1,3 +1,11 @@
+/ControlUnit.class
 /InstructionMemory.class
 /MUX.class
-/ControlUnit.class
+/Datapath.class
+/IDEX.class
+/ALU.class
+/ALUControl.class
+/Adder.class
+/IFID.class
+/RegisterFile.class
+/DataMemory.class
