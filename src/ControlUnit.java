@@ -34,39 +34,50 @@ public class ControlUnit implements Serializable{
 	public void setPCSrc(boolean pCSrc) {
 		PCSrc = pCSrc;
 	}
-	public void action(){
-		switch(this.ALUOperation){
-		case "00": //TO be focused on 
-			this.PCSrc = false;
-			this.ALUSrc = false;
-			this.MemWrite = false;
-			this.MemtoReg = false;
-			this.MemRead = false;
-			this.RegWrite = false;
-			this.RegDest=false;
-			this.branch=false;
-			;break;
-		case "01":     
-			this.PCSrc = false;
-			this.ALUSrc = false;
-			this.MemWrite = false;
-			this.MemtoReg = false;
-			this.MemRead = false;
-			this.RegWrite = false;
-			this.RegDest=false;
-			this.branch=true;
-
-			;break;
-		case "10":     
-			this.PCSrc = false;
-			this.ALUSrc = false;
-			this.MemWrite = false;
-			this.MemtoReg = false;
-			this.MemRead = false;
-			this.RegWrite = true;
+	public void action(String op){
+		switch(op){
+		case "000000": //TO be focused on 
 			this.RegDest=true;
+			this.ALUSrc = false;
+			this.MemtoReg = false;
+			this.RegWrite = false;
+			this.MemRead = false;
+			this.MemWrite=true;
 			this.branch=false;
+			this.ALUOperation="10";
 			;break;
+		case "100011": 
+			this.RegDest=false;
+			this.ALUSrc = true;
+			this.MemtoReg = true;
+			this.RegWrite = true;
+			this.MemRead = true;
+			this.MemWrite=false;
+			this.branch=false;
+			this.ALUOperation="00";		
+
+			break;
+		case "101011":     
+			this.RegDest=false;
+			this.ALUSrc = true;
+			this.MemtoReg = false;
+			this.RegWrite = true;
+			this.MemRead = false;
+			this.MemWrite=true;
+			this.branch=false;
+			this.ALUOperation="00";
+			break;
+			
+		case "000100":     
+			this.RegDest=false;
+			this.ALUSrc = false;
+			this.MemtoReg = false;
+			this.RegWrite = false;
+			this.MemRead = false;
+			this.MemWrite=false;
+			this.branch=true;
+			this.ALUOperation="01";
+			break;	
 		
 		}
 	}
