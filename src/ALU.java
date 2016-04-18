@@ -6,10 +6,17 @@ public class ALU {
 	private int carry; // used carry in add , subtract , shiftLeft and I also truncated rest
 	private String output;
 	
-//	public ALU(){
-//		
-//	}
-
+	
+	public String Activate(String Input1 , String Input2 , String Code) throws Exception{
+		switch (Code){
+		case "0000" : output = And(Input1,Input2) ;break;
+		case "0001" : output = Or(Input1,Input2);break;
+		case "0010" : output = add(Input1,Input2);break;
+		case "0110" : output = subtract(Input1,Input2);break;
+		case "0111" : output = compare(Input1,Input2);break;
+		}
+		return output;
+	}
 	public String shiftLeft(String Data) throws Exception{
 		if(Data.length()>32) throw new Exception("Over flow input! bigger than 32 bits!");
 		int temp=Integer.parseInt(Data,2);
@@ -55,13 +62,13 @@ public class ALU {
 //	}
 		return output;
 	}
-	public int compare (String input1, String input2) throws Exception{
+	public String compare (String input1, String input2) throws Exception{
 		if(input1.length()>32|| input2.length()>32) throw new Exception("Over flow input! bigger than 32 bits!");
 		int temp1=Integer.parseInt(input1,2);
 		int temp2=Integer.parseInt(input2,2);
 		int res= temp1-temp2;
 		zero= (res==0)?1:(res>0)?0:-1; //if equals -> 1 , bigger -> 0 , smaller -> -1 
-		return zero;
+		if(zero == 1) return "1"; else return "0";
 	}
 	public String add (String input1, String input2) throws Exception{
 		if(input1.length()>32|| input2.length()>32) throw new Exception("Over flow input! bigger than 32 bits!");
@@ -91,6 +98,26 @@ public class ALU {
 	}
 		return output;
 	}
+	
+	public String Or (String input1,String input2){
+		String output = "00000000000000000000000000000000";
+		for(int i = 0; i < input2.length() ; i++){
+			if(input1.charAt(i) == '1' || input2.charAt(i) == '1'){
+				output.replace(output.charAt(i), '1');
+			}
+		}
+		return output;
+	}
+	public String And (String input1,String input2){
+		String output = "00000000000000000000000000000000";
+		for(int i = 0; i < input2.length() ; i++){
+			if(input1.charAt(i) == '1' && input2.charAt(i) == '1'){
+				output.replace(output.charAt(i), '1');
+			}
+		}
+		return output;
+	}
+	
 //	public String getInput1() {
 //		return input1;
 //	}
@@ -121,4 +148,6 @@ public class ALU {
 	public void setOutput(String output) {
 		this.output = output;
 	}
+	
 }
+
