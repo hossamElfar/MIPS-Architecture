@@ -2,7 +2,7 @@
 public class ALU {
 //	private String input1; //not sure if needed since could use input from method
 //	private String input2;
-	private int zero; 
+	boolean zero; 
 	private int carry; // used carry in add , subtract , shiftLeft and I also truncated rest
 	private String output;
 	
@@ -67,8 +67,10 @@ public class ALU {
 		int temp1=Integer.parseInt(input1,2);
 		int temp2=Integer.parseInt(input2,2);
 		int res= temp1-temp2;
-		zero= (res==0)?1:(res>0)?0:-1; //if equals -> 1 , bigger -> 0 , smaller -> -1 
-		if(zero == 1) return "1"; else return "0";
+		int comp;
+		comp= (res==0)?1:(res>0)?0:-1; //if equals -> 1 , bigger -> 0 , smaller -> -1 
+		if(comp == 1){ zero = true;return "1";}
+		else {zero = false;return "0";}
 	}
 	public String add (String input1, String input2) throws Exception{
 		if(input1.length()>32|| input2.length()>32) throw new Exception("Over flow input! bigger than 32 bits!");
@@ -130,10 +132,10 @@ public class ALU {
 //	public void setInput2(String input2) {
 //		this.input2 = input2;
 //	}
-	public int getZero() {
+	public boolean isZero() {
 		return zero;
 	}
-	public void setZero(int zero) {
+	public void setZero(boolean zero) {
 		this.zero = zero;
 	}
 	public int getCarry() {
