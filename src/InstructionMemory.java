@@ -20,11 +20,9 @@ public class InstructionMemory {
 			if(line == null){
 				break;
 			}
-			System.out.println(line);
-			//System.out.println(line.substring(7, 12));
 			instructions.add(line.substring(0,4));
-			instructions.add(line.substring(5,8));
-			instructions.add(line.substring(7,12));
+			instructions.add(line.substring(4,8));
+			instructions.add(line.substring(8,12));
 			instructions.add(line.substring(12,16));
 		}
 		br.close();

@@ -1,12 +1,10 @@
 import java.io.IOException;
-//pending points:
-//1- control unit
-//2- clockcycles
-//3- 
+import java.util.ArrayList;
 
 public class Datapath {
 	
 	String pc;
+	ArrayList<String> status;
 	Adder A1 , A2;
 	MUX M1 , M2 , M3 , M4;
 	InstructionMemory IM;
@@ -31,6 +29,7 @@ public class Datapath {
 		pc = "00000000000000000000000000000000";
 		//Text file FOR IM;
 		IM = new InstructionMemory("inst.txt");
+		status = new ArrayList<String>(IM.instructions.size());
 		A = new ALU();
 		A1 = new Adder();
 		DM = new DataMemory();
@@ -43,30 +42,36 @@ public class Datapath {
 		DX = new IDEX();
 		EM = new EXMEM();
 		MW = new MEMWB();
-		clockcycle = 0;
+		clockcycle = 5 * (IM.instructions.size() - 1);
 	}
 	
-	public void fetch(){	
+	public void fetch(){
+		c = 0;
+		M1.setInputs(adderResult, EM.branchAddress);
+		if(PcSrc) c = 1;
+		M1.select(c);
 		int index = Integer.parseInt(pc,2);
 		String inst = IM.fetch(index);	
 		String in1 = Integer.toBinaryString(4);
 		pc = (A1.add(in1, pc));
 		FD.setInstruction(inst);
 		FD.setIncrementedPC(pc);
-		System.out.println("Clockcycle "+clockcycle + " instruction "+ inst + "fetched!");
     }
 	
 	public void decode() throws Exception{
+		RF.setRegWrite(MW.isRegWrite());
+		if(MW.isMemToReg())c = 1;
+		RF.WriteData(MW.rd,M4.select(c));
 		String inst = FD.getInstruction();
 		String pc = FD.getIncrementedPC();
 		DX.setIncrementedPC(pc);
-		DX.setReadValue1(RF.ReadReg1(inst.substring(21,25)));
-		DX.setReadValue2(RF.ReadReg2(inst.substring(20,16)));
-		DX.setSignExtend(Se.extend(inst.substring(0, 15)));
-		DX.setRt(inst.substring(11, 15));
-		DX.setRd(inst.substring(16, 20));
-		C.action(inst.substring(0, 5));
-		//Ctrl Signals
+		DX.setReadValue1(RF.ReadReg1(inst.substring(21,26)));
+		DX.setReadValue2(RF.ReadReg2(inst.substring(20,17)));
+		DX.setSignExtend(Se.extend(inst.substring(0, 16)));
+		DX.setRt(inst.substring(11, 16));
+		DX.setRd(inst.substring(16, 21));
+		C.action(inst.substring(0, 6));
+		
 		DX.setMemRead(C.MemRead);
 		DX.setMemWrite(C.MemWrite);
 		DX.setALUop(C.ALUOperation);
@@ -76,49 +81,10 @@ public class Datapath {
 		DX.setRegDestination(C.RegDest);
 		DX.setRegWrite(C.RegWrite);
 	}
-	public void execute(String adderResult, String ALUResult, boolean zero, String m3Out, boolean b, boolean c, boolean d, boolean e, boolean f, String ReadValue){
-		EM.setBranchAddress(adderResult);
-		EM.setALUresult(ALUResult);
-		EM.setRd(m3Out);
-		EM.setZeroFlag(zero);
-		EM.setValueToMem(ReadValue);
-		EM.setMemTowrite(b);
-		EM.setRegWrite(c);
-		EM.setBranch(d);
-		EM.setMemRead(e);
-		EM.setMemWrite(f);
-		
-		
-	}
-	public void writeback(String DMResult, String memoryValue, boolean regWrite, boolean MemToReg, String Rd){
-		MW.setAluResult(memoryValue);
-		MW.setMemoryRead(DMResult);
-		MW.setRd(Rd);
-		MW.setMemToReg(MemToReg);
-		MW.setRegWrite(regWrite);;
-	}
-	
-	
-	public void main(String[] args) throws Exception{
-		
-		if(clockcycle != 0){
-		c = 0;
-		M1.setInputs(adderResult, EM.branchAddress);
-		if(PcSrc) c = 1;
-		M1.select(c);
-		//PC
-		}
-		fetch();
-		RF.setRegWrite(MW.isRegWrite());
-		if(MW.isMemToReg())c = 1;
-		RF.WriteData(MW.rd,M4.select(c));
-		
-		
-		decode();
-		//Decode part over-- begining of the Execute
+	public void execute() throws Exception{
 		String ShiftResult = SL.shiftLeft(DX.getSignExtend());
 		adderResult = A2.add(DX.getIncrementedPC(), ShiftResult );
-		String code = AC.decide(DX.getALUop(), DX.getSignExtend().substring(0, 5));
+		String code = AC.decide(DX.getALUop(), DX.getSignExtend().substring(0, 6));
 		M2.setInputs(DX.getReadValue2(),DX.getIncrementedPC());
 		c = 0;
 		if(DX.isALUsrc())c = 1;
@@ -129,27 +95,76 @@ public class Datapath {
 		if(DX.isRegDestination())c = 1;
 		String M3Out = M3.select(c);
 		
+		EM.setBranchAddress(adderResult);
+		EM.setALUresult(ALUResult);
+		EM.setRd(M3Out);
+		EM.setZeroFlag(A.isZero());
+		EM.setValueToMem(DX.getReadValue2());
+		EM.setMemTowrite(DX.RegDestination);
+		EM.setRegWrite(DX.isRegWrite());
+		EM.setBranch(DX.isBranch());
+		EM.setMemRead(DX.isMemRead());
+		EM.setMemWrite(DX.isMemWrite());
 		
-		execute(adderResult,ALUResult,A.isZero(),M3Out,DX.isRegWrite(),DX.isMemToReg(),DX.isBranch(),DX.isMemRead(),DX.isMemWrite(),DX.getReadValue2());
-		///execute Done -- Start of write back
+		
+	}
+	public void writeback(){
 		DM.setMemRead(EM.isMemRead());
 		DM.setMemWrite(EM.isMemWrite());
 		String DMResult = DM.read(EM.ALUresult);
 		DM.store(EM.getValueToMem());
-		
-		//Branch And
 		if(EM.isBranch() == true && A.isZero() == true)PcSrc = true;
-		
-		
-		writeback(DMResult,EM.getValueToMem(),EM.isRegWrite(),EM.isMemTowrite(),EM.getRd());
-		//post MEMWB Register
+		MW.setAluResult(EM.getValueToMem());
+		MW.setMemoryRead(DMResult);
+		MW.setRd(EM.getRd());
+		MW.setMemToReg(EM.isMemTowrite());
+		MW.setRegWrite(EM.isRegWrite());
 		c = 0;
 		M4.setInputs(MW.getMemoryRead(), MW.getAluResult());
 		if(MW.isMemToReg()) c = 1;
 		M4Result = M4.select(c);
+	}
+	
+	
+	public void main(String[] args) throws Exception{
+		int i = 0;
+		int j = 1;
+		while(j <= clockcycle){
 		
-		
-		
-		
+		System.out.println("Clock cycle "+ j);	
+			
+		while(i <= j - 1){
+			
+		if(status.get(i) == "Done")break;	
+			
+		if(status.get(i) == null){
+		fetch();
+		status.set(i, "Fetched");
+		System.out.println("Instruction " + i + "has been fetched!");
+		}
+		else {
+			if(status.get(i) == "Fetched"){
+				decode();
+				status.set(i, "Decoded");
+				System.out.println("Instruction " + i + "has been Decoded!");
+			}else{
+				if(status.get(i) =="Decoded"){
+					execute();
+					status.set(i, "Executed");
+					System.out.println("Instruction " + i + "has been executed!");
+				}else{
+					if(status.get(i) =="Executed"){
+						writeback();
+						status.set(i, "Done");
+						System.out.println("Instruction " + i + "is DONE!");
+					}
+					}
+					}
+					}
+		i++;
+		}
+		j++;
+		i = 0;
+		}
 	}
 }
