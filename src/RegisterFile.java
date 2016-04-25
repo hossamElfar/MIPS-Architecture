@@ -16,9 +16,11 @@ public class RegisterFile {
 		Registers[0] = "0";
 	}
 	public String ReadReg1(String index){
+		if(Registers[Integer.parseInt(index,2)] == null)return "00000000000000000000000000000000";
 		return Registers[Integer.parseInt(index,2)];
 	}
 	public String ReadReg2(String index){
+		if(Registers[Integer.parseInt(index,2)] == null)return "00000000000000000000000000000000";
 		return Registers[Integer.parseInt(index,2)];
 	}
 	public void WriteData(String index , String value){

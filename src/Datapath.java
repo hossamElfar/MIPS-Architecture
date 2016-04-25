@@ -3,35 +3,40 @@ import java.util.ArrayList;
 
 public class Datapath {
 	
-	String pc;
-	ArrayList<String> status;
-	Adder A1 , A2;
-	MUX M1 , M2 , M3 , M4;
-	InstructionMemory IM;
-	IFID FD;
-	ALUControl AC;
-	ALU A;
-	ControlUnit C;
-	RegisterFile RF;
-	IDEX DX;
-	ShiftLeft2 SL;
-	SignExtender Se;
-	DataMemory DM;
-	MEMWB MW;
-	EXMEM EM;
-	int clockcycle;
-	String M4Result;
-	int c = 0;
-	boolean PcSrc;
-	String adderResult;
+	static String pc;
+	static ArrayList<String> status;
+	static Adder A1 , A2;
+	static MUX M1 , M2 , M3 , M4;
+	static InstructionMemory IM;
+	static IFID FD;
+	static ALUControl AC;
+	static ALU A;
+	static ControlUnit C;
+	static RegisterFile RF;
+	static IDEX DX;
+	static ShiftLeft2 SL;
+	static SignExtender Se;
+	static DataMemory DM;
+	static MEMWB MW;
+	static EXMEM EM;
+	static int clockcycle;
+	static String M4Result;
+	static int c = 0;
+	static boolean PcSrc;
+	static String adderResult;
 	
 	public Datapath() throws IOException{
 		pc = "00000000000000000000000000000000";
 		//Text file FOR IM;
 		IM = new InstructionMemory("inst.txt");
-		status = new ArrayList<String>(IM.instructions.size());
+		status = new ArrayList<String>();
+		for(int k = 0; k < IM.instructions.size() ; k++){
+			status.add("Pending");
+		}
+		
 		A = new ALU();
 		A1 = new Adder();
+		A2 = new Adder();
 		DM = new DataMemory();
 		AC = new ALUControl();
 		C = new ControlUnit();
@@ -42,15 +47,27 @@ public class Datapath {
 		DX = new IDEX();
 		EM = new EXMEM();
 		MW = new MEMWB();
-		clockcycle = 5 * (IM.instructions.size() - 1);
+		clockcycle = 5 + ((IM.instructions.size())/4 - 1);
+		M1 = new MUX();
+		M2 = new MUX();
+		M3 = new MUX();
+		M4 = new MUX();
+		
+		//These are the variables that we do not have in the 1st 4 clock cycles
+		adderResult = pc;
+		EM.branchAddress = pc;
+		MW.rd = "00000";
+		
+		
 	}
 	
-	public void fetch(){
+	public static void fetch(){
 		c = 0;
 		M1.setInputs(adderResult, EM.branchAddress);
 		if(PcSrc) c = 1;
 		M1.select(c);
 		int index = Integer.parseInt(pc,2);
+		System.out.println(index);
 		String inst = IM.fetch(index);	
 		String in1 = Integer.toBinaryString(4);
 		pc = (A1.add(in1, pc));
@@ -58,15 +75,16 @@ public class Datapath {
 		FD.setIncrementedPC(pc);
     }
 	
-	public void decode() throws Exception{
+	public static void decode() throws Exception{
 		RF.setRegWrite(MW.isRegWrite());
 		if(MW.isMemToReg())c = 1;
 		RF.WriteData(MW.rd,M4.select(c));
 		String inst = FD.getInstruction();
 		String pc = FD.getIncrementedPC();
 		DX.setIncrementedPC(pc);
+		System.out.println(FD.getInstruction());
 		DX.setReadValue1(RF.ReadReg1(inst.substring(21,26)));
-		DX.setReadValue2(RF.ReadReg2(inst.substring(20,17)));
+		DX.setReadValue2(RF.ReadReg2(inst.substring(17,20)));
 		DX.setSignExtend(Se.extend(inst.substring(0, 16)));
 		DX.setRt(inst.substring(11, 16));
 		DX.setRd(inst.substring(16, 21));
@@ -81,7 +99,7 @@ public class Datapath {
 		DX.setRegDestination(C.RegDest);
 		DX.setRegWrite(C.RegWrite);
 	}
-	public void execute() throws Exception{
+	public static void execute() throws Exception{
 		String ShiftResult = SL.shiftLeft(DX.getSignExtend());
 		adderResult = A2.add(DX.getIncrementedPC(), ShiftResult );
 		String code = AC.decide(DX.getALUop(), DX.getSignExtend().substring(0, 6));
@@ -108,10 +126,11 @@ public class Datapath {
 		
 		
 	}
-	public void writeback(){
+	public static void writeback(){
 		DM.setMemRead(EM.isMemRead());
 		DM.setMemWrite(EM.isMemWrite());
 		String DMResult = DM.read(EM.ALUresult);
+
 		DM.store(EM.getValueToMem());
 		if(EM.isBranch() == true && A.isZero() == true)PcSrc = true;
 		MW.setAluResult(EM.getValueToMem());
@@ -126,37 +145,39 @@ public class Datapath {
 	}
 	
 	
-	public void main(String[] args) throws Exception{
+	public static void main(String[] args) throws Exception{
+		Datapath D = new Datapath();
 		int i = 0;
 		int j = 1;
+		System.out.println(clockcycle);
 		while(j <= clockcycle){
 		
-		System.out.println("Clock cycle "+ j);	
+		System.out.println("Clock cycle "+ j);
 			
 		while(i <= j - 1){
 			
-		if(status.get(i) == "Done")break;	
+		//if(status.get(i) == "Done")break;	
 			
-		if(status.get(i) == null){
+		if(status.get(i) == "Pending"){
 		fetch();
 		status.set(i, "Fetched");
-		System.out.println("Instruction " + i + "has been fetched!");
+		System.out.println("Instruction " + i + " has been fetched!");
 		}
 		else {
 			if(status.get(i) == "Fetched"){
 				decode();
 				status.set(i, "Decoded");
-				System.out.println("Instruction " + i + "has been Decoded!");
+				System.out.println("Instruction " + i + " has been Decoded!");
 			}else{
 				if(status.get(i) =="Decoded"){
 					execute();
 					status.set(i, "Executed");
-					System.out.println("Instruction " + i + "has been executed!");
+					System.out.println("Instruction " + i + " has been executed!");
 				}else{
 					if(status.get(i) =="Executed"){
 						writeback();
 						status.set(i, "Done");
-						System.out.println("Instruction " + i + "is DONE!");
+						System.out.println("Instruction " + i + " is DONE!");
 					}
 					}
 					}

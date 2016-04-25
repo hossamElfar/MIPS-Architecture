@@ -20,10 +20,10 @@ public class InstructionMemory {
 			if(line == null){
 				break;
 			}
-			instructions.add(line.substring(0,4));
-			instructions.add(line.substring(4,8));
-			instructions.add(line.substring(8,12));
-			instructions.add(line.substring(12,16));
+			instructions.add(line.substring(0,8));
+			instructions.add(line.substring(8,16));
+			instructions.add(line.substring(16,24));
+			instructions.add(line.substring(24,32));
 		}
 		br.close();
 	}
@@ -32,6 +32,7 @@ public class InstructionMemory {
 		if(instructions.size() == 0){
 			return null;
 		}
+		if(pc == instructions.size())return null;
 		return instructions.get(pc) + instructions.get(pc+1) + instructions.get(pc+2) + instructions.get(pc+3);
 	}
 	
@@ -39,10 +40,5 @@ public class InstructionMemory {
 		return instructions.toString();
 	}
 	
-	public static void main(String[] args) throws IOException {
-		InstructionMemory memory = new InstructionMemory("inst.txt");
-		System.out.println(memory.fetch(0));
-		System.out.println(memory.fetch(1));
-	}
 	
 }
