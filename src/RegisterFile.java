@@ -14,6 +14,9 @@ public class RegisterFile {
 	public RegisterFile(){
 		this.Registers = new String[32];
 		Registers[0] = "0";
+		for(int i = 1; i < 32 ;i++ ){
+			Registers[i] = "00000000000000000000000000000000";
+		}
 	}
 	public String ReadReg1(String index){
 		if(Registers[Integer.parseInt(index,2)] == null)return "00000000000000000000000000000000";
@@ -24,7 +27,11 @@ public class RegisterFile {
 		return Registers[Integer.parseInt(index,2)];
 	}
 	public void WriteData(String index , String value){
+		System.out.println("HERE!");
 		if(Integer.parseInt(index,2) == 0 || !RegWrite)return;
+		System.out.println(index);
+		System.out.println(value);
+		
 		Registers[Integer.parseInt(index,2)] = value;
 		
 	}

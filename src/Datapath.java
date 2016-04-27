@@ -29,8 +29,10 @@ public class Datapath {
 		pc = "00000000000000000000000000000000";
 		//Text file FOR IM;
 		IM = new InstructionMemory("inst.txt");
+		
+		
 		status = new ArrayList<String>();
-		for(int k = 0; k < IM.instructions.size() ; k++){
+		for(int k = 0; k < IM.instructions.size()/4 ; k++){
 			status.add("Pending");
 		}
 		
@@ -67,7 +69,6 @@ public class Datapath {
 		if(PcSrc) c = 1;
 		M1.select(c);
 		int index = Integer.parseInt(pc,2);
-		System.out.println(index);
 		String inst = IM.fetch(index);	
 		String in1 = Integer.toBinaryString(4);
 		pc = (A1.add(in1, pc));
@@ -76,20 +77,16 @@ public class Datapath {
     }
 	
 	public static void decode() throws Exception{
-		RF.setRegWrite(MW.isRegWrite());
-		if(MW.isMemToReg())c = 1;
-		RF.WriteData(MW.rd,M4.select(c));
 		String inst = FD.getInstruction();
 		String pc = FD.getIncrementedPC();
 		DX.setIncrementedPC(pc);
-		System.out.println(FD.getInstruction());
 		DX.setReadValue1(RF.ReadReg1(inst.substring(21,26)));
 		DX.setReadValue2(RF.ReadReg2(inst.substring(17,20)));
 		DX.setSignExtend(Se.extend(inst.substring(0, 16)));
 		DX.setRt(inst.substring(11, 16));
 		DX.setRd(inst.substring(16, 21));
 		C.action(inst.substring(0, 6));
-		
+		System.out.println(inst.substring(0,6));
 		DX.setMemRead(C.MemRead);
 		DX.setMemWrite(C.MemWrite);
 		DX.setALUop(C.ALUOperation);
@@ -99,6 +96,9 @@ public class Datapath {
 		DX.setRegDestination(C.RegDest);
 		DX.setRegWrite(C.RegWrite);
 	}
+	
+	
+	
 	public static void execute() throws Exception{
 		String ShiftResult = SL.shiftLeft(DX.getSignExtend());
 		adderResult = A2.add(DX.getIncrementedPC(), ShiftResult );
@@ -112,7 +112,6 @@ public class Datapath {
 		M3.setInputs(DX.getRt(), DX.getRd());
 		if(DX.isRegDestination())c = 1;
 		String M3Out = M3.select(c);
-		
 		EM.setBranchAddress(adderResult);
 		EM.setALUresult(ALUResult);
 		EM.setRd(M3Out);
@@ -123,14 +122,12 @@ public class Datapath {
 		EM.setBranch(DX.isBranch());
 		EM.setMemRead(DX.isMemRead());
 		EM.setMemWrite(DX.isMemWrite());
-		
-		
 	}
-	public static void writeback(){
+	
+	public static void memory(){
 		DM.setMemRead(EM.isMemRead());
 		DM.setMemWrite(EM.isMemWrite());
 		String DMResult = DM.read(EM.ALUresult);
-
 		DM.store(EM.getValueToMem());
 		if(EM.isBranch() == true && A.isZero() == true)PcSrc = true;
 		MW.setAluResult(EM.getValueToMem());
@@ -138,54 +135,104 @@ public class Datapath {
 		MW.setRd(EM.getRd());
 		MW.setMemToReg(EM.isMemTowrite());
 		MW.setRegWrite(EM.isRegWrite());
+		
+	}
+	
+	private static void writeback() {
 		c = 0;
 		M4.setInputs(MW.getMemoryRead(), MW.getAluResult());
 		if(MW.isMemToReg()) c = 1;
 		M4Result = M4.select(c);
+		RF.setRegWrite(MW.isRegWrite());
+		System.out.println(MW.isRegWrite());
+		if(MW.isMemToReg())c = 1;
+		RF.WriteData(MW.rd,M4.select(c));
+		
 	}
+	
+	
+	public static void printRegData(){
+		for(int i = 0; i < RF.Registers.length ; i++)
+		System.out.println(RF.Registers[i]);
+	}
+	public static void printFetch(){
+	System.out.println(FD.getIncrementedPC());
+	System.out.println(FD.getInstruction());
+	}
+	
+	////Ctrl signals printing
+	public static void printDecode(){
+	System.out.println(	"AluSrc " +	DX.isALUsrc());
+	System.out.println(	"Branch " +	DX.isBranch());
+	System.out.println(	"MemRead " +	DX.isMemRead());
+	System.out.println(	"MemToReg " +	DX.isMemToReg());
+	System.out.println(	"MemWrite " +	DX.isMemWrite());
+	System.out.println(	"RegDestination " +	DX.isRegDestination());
+	System.out.println(	"RegWrite " +	DX.isRegWrite());
+	}
+	public static void printExecute(){
+		System.out.println(	"Branch " +	EM.isBranch());
+		System.out.println(	"MemRead " +	EM.isMemRead());
+		System.out.println(	"MemToReg " +	EM.isMemTowrite());
+		System.out.println(	"MemWrite " +	EM.isMemWrite());
+		System.out.println(	"RegWrite " +	EM.isRegWrite());
+		System.out.println(	"Zero " +	EM.isZeroFlag());
+	}
+	public static void printMemory(){
+		System.out.println(	"MemToReg " +	MW.isMemToReg());
+		System.out.println(	"RegWrite " +	MW.isRegWrite());
+	}
+	
+	
 	
 	
 	public static void main(String[] args) throws Exception{
 		Datapath D = new Datapath();
 		int i = 0;
-		int j = 1;
-		System.out.println(clockcycle);
-		while(j <= clockcycle){
-		
-		System.out.println("Clock cycle "+ j);
+		int j = 0;
+		while(j < clockcycle){
+		System.out.println("---------------------");
+		System.out.println("Clock cycle " + (j + 1));
+		while (i <= j){
 			
-		while(i <= j - 1){
-			
-		//if(status.get(i) == "Done")break;	
-			
-		if(status.get(i) == "Pending"){
-		fetch();
-		status.set(i, "Fetched");
-		System.out.println("Instruction " + i + " has been fetched!");
-		}
-		else {
-			if(status.get(i) == "Fetched"){
-				decode();
-				status.set(i, "Decoded");
-				System.out.println("Instruction " + i + " has been Decoded!");
+			if(status.get(i) == "Pending"){
+				fetch();
+				status.set(i, "Fetched");
+				System.out.println("Instruction " + (i + 1) +" is fetched");
 			}else{
-				if(status.get(i) =="Decoded"){
-					execute();
-					status.set(i, "Executed");
-					System.out.println("Instruction " + i + " has been executed!");
+				if(status.get(i) == "Fetched"){
+					decode();
+					status.set(i, "Decoded");
+					System.out.println("Instruction " + (i+ 1) +" is decoded");
 				}else{
-					if(status.get(i) =="Executed"){
-						writeback();
-						status.set(i, "Done");
-						System.out.println("Instruction " + i + " is DONE!");
+					if(status.get(i) == "Decoded"){
+						execute();
+						status.set(i, "Executed");
+						System.out.println("Instruction " + (i+ 1) +" is executed");
+					}else{
+						if(status.get(i) == "Executed"){
+							memory();
+							status.set(i, "Memory");
+							System.out.println("Instruction " + (i+ 1) +" passed MemoryStage");
+						}else{
+							if(status.get(i) == "Memory"){
+								writeback();
+								status.set(i, "Done");
+								System.out.println("Instruction " + (i+ 1) +" is Done");
+							}
+						}
+						
 					}
-					}
-					}
-					}
+				}
+			}
+		if(i + 1 == status.size())break;	
+			
 		i++;
 		}
 		j++;
 		i = 0;
 		}
-	}
+}
+
+	
 }
