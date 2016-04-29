@@ -36,11 +36,11 @@ public class ControlUnit implements Serializable{
 	}
 	public void action(String op){
 		switch(op){
-		case "000000": //TO be focused on 
+		case "000000":
 			this.RegDest=true;
 			this.ALUSrc = false;
 			this.MemtoReg = false;
-			this.RegWrite = false;
+			this.RegWrite = true;
 			this.MemRead = false;
 			this.MemWrite=true;
 			this.branch=false;

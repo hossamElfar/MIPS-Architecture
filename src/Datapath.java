@@ -81,12 +81,12 @@ public class Datapath {
 		String pc = FD.getIncrementedPC();
 		DX.setIncrementedPC(pc);
 		DX.setReadValue1(RF.ReadReg1(inst.substring(21,26)));
-		DX.setReadValue2(RF.ReadReg2(inst.substring(17,20)));
-		DX.setSignExtend(Se.extend(inst.substring(0, 16)));
+		DX.setReadValue2(RF.ReadReg2(inst.substring(17,21)));
+		System.out.println(Se.extend(inst.substring(18, 32)));
+		DX.setSignExtend(Se.extend(inst.substring(18, 32)));
 		DX.setRt(inst.substring(11, 16));
 		DX.setRd(inst.substring(16, 21));
 		C.action(inst.substring(0, 6));
-		System.out.println(inst.substring(0,6));
 		DX.setMemRead(C.MemRead);
 		DX.setMemWrite(C.MemWrite);
 		DX.setALUop(C.ALUOperation);
@@ -102,11 +102,16 @@ public class Datapath {
 	public static void execute() throws Exception{
 		String ShiftResult = SL.shiftLeft(DX.getSignExtend());
 		adderResult = A2.add(DX.getIncrementedPC(), ShiftResult );
-		String code = AC.decide(DX.getALUop(), DX.getSignExtend().substring(0, 6));
+		System.out.println(DX.getSignExtend().substring(26, 32));
+		String code = AC.decide(DX.getALUop(), DX.getSignExtend().substring(26, 32));
 		M2.setInputs(DX.getReadValue2(),DX.getIncrementedPC());
 		c = 0;
 		if(DX.isALUsrc())c = 1;
 		String M2Out = M2.select(c);
+		System.out.println(DX.ReadValue1);
+		System.out.println(M2Out);
+		System.out.println(code);
+		
 		String ALUResult = A.Activate(DX.ReadValue1, M2Out, code);
 		c = 0;
 		M3.setInputs(DX.getRt(), DX.getRd());
@@ -144,7 +149,6 @@ public class Datapath {
 		if(MW.isMemToReg()) c = 1;
 		M4Result = M4.select(c);
 		RF.setRegWrite(MW.isRegWrite());
-		System.out.println(MW.isRegWrite());
 		if(MW.isMemToReg())c = 1;
 		RF.WriteData(MW.rd,M4.select(c));
 		

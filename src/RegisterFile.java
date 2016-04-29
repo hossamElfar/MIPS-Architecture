@@ -27,10 +27,7 @@ public class RegisterFile {
 		return Registers[Integer.parseInt(index,2)];
 	}
 	public void WriteData(String index , String value){
-		System.out.println("HERE!");
 		if(Integer.parseInt(index,2) == 0 || !RegWrite)return;
-		System.out.println(index);
-		System.out.println(value);
 		
 		Registers[Integer.parseInt(index,2)] = value;
 		
