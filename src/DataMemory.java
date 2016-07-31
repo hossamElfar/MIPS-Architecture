@@ -11,50 +11,28 @@ public class DataMemory implements Serializable {
 	Hashtable<String, String> memory;
 	boolean MemWrite;
 	boolean MemRead;
-	String adress;
-	String data;
+
 
 
 	public DataMemory() {
-		super();
+
 		this.memory = new Hashtable<String, String>();
+		for(int i=0;i<32;i++){
+			String a = Integer.toBinaryString(i);
+			memory.put(a, "00000000000000000000000000000000");
+		}
 		MemWrite = false;
 		MemRead = false;
-		this.adress = "";
-		this.data = "";
 	}
 
 
-	public Hashtable<String, String> getMemory() {
-		return memory;
-	}
-
-	public void store() {
-		memory.put(adress, data);
-	}
-
-	public void store(String add) {
-		memory.put(add, data);
-	}
-
-	public String read() {
-		return memory.get(adress);
-	}
-
-	public String read(String add) {
+	public String memory(String add,String data) {
+		if(MemRead)
 		return memory.get(add);
+		else {memory.put(add,data); return null;}
 	}
 
-	public void save() throws IOException {
-		String fileLocation = "memory.ser"; // To be Modified
-		FileOutputStream fileOut = new FileOutputStream(fileLocation);
-		ObjectOutputStream os = new ObjectOutputStream(fileOut);
-		os.writeObject(this);
-	}
 
-	public void setMemory(Hashtable<String, String> memory) {
-		this.memory = memory;
-	}
 
 	public boolean isMemWrite() {
 		return MemWrite;
@@ -72,19 +50,5 @@ public class DataMemory implements Serializable {
 		MemRead = memRead;
 	}
 
-	public String getAdress() {
-		return adress;
-	}
 
-	public void setAdress(String adress) {
-		this.adress = adress;
-	}
-
-	public String getData() {
-		return data;
-	}
-
-	public void setData(String data) {
-		this.data = data;
-	}
 }

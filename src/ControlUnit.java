@@ -14,6 +14,7 @@ public class ControlUnit implements Serializable{
 	boolean RegWrite;
 	boolean RegDest;
 	boolean branch ;
+	boolean jump;
 
 	public ControlUnit() {
 		this.PCSrc = false;
@@ -36,16 +37,19 @@ public class ControlUnit implements Serializable{
 	}
 	public void action(String op){
 		switch(op){
-		case "000000": //TO be focused on 
+		//R types
+		case "000000":
 			this.RegDest=true;
 			this.ALUSrc = false;
 			this.MemtoReg = false;
-			this.RegWrite = false;
+			this.RegWrite = true;
 			this.MemRead = false;
-			this.MemWrite=true;
+			this.MemWrite=false;
 			this.branch=false;
 			this.ALUOperation="10";
 			;break;
+			
+		//Load
 		case "100011": 
 			this.RegDest=false;
 			this.ALUSrc = true;
@@ -57,17 +61,18 @@ public class ControlUnit implements Serializable{
 			this.ALUOperation="00";		
 
 			break;
+		//Store
 		case "101011":     
 			this.RegDest=false;
 			this.ALUSrc = true;
 			this.MemtoReg = false;
-			this.RegWrite = true;
+			this.RegWrite = false;
 			this.MemRead = false;
 			this.MemWrite=true;
 			this.branch=false;
 			this.ALUOperation="00";
 			break;
-			
+		//Beq
 		case "000100":     
 			this.RegDest=false;
 			this.ALUSrc = false;
@@ -77,6 +82,17 @@ public class ControlUnit implements Serializable{
 			this.MemWrite=false;
 			this.branch=true;
 			this.ALUOperation="01";
+			break;	
+		//JUMP
+		case "000010":     
+			this.RegDest=false;
+			this.ALUSrc = false;
+			this.MemtoReg = false;
+			this.RegWrite = false;
+			this.MemRead = false;
+			this.MemWrite=false;
+			this.branch=false;
+			this.jump=true;
 			break;	
 		
 		}

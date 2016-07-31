@@ -2,14 +2,21 @@
 public class ALU {
 //	private String input1; //not sure if needed since could use input from method
 //	private String input2;
-	private int zero; 
+	boolean zero; 
 	private int carry; // used carry in add , subtract , shiftLeft and I also truncated rest
 	private String output;
 	
-//	public ALU(){
-//		
-//	}
-
+	
+	public String Activate(String Input1 , String Input2 , String Code) throws Exception{
+		switch (Code){
+		case "0000" : output = And(Input1,Input2) ;break;
+		case "0001" : output = Or(Input1,Input2);break;
+		case "0010" : output = add(Input1,Input2);System.out.println("HERE3");break;
+		case "0110" : output = subtract(Input1,Input2);break;
+		case "0111" : output = compare(Input1,Input2);break;
+		}
+		return output;
+	}
 	public String shiftLeft(String Data) throws Exception{
 		if(Data.length()>32) throw new Exception("Over flow input! bigger than 32 bits!");
 		int temp=Integer.parseInt(Data,2);
@@ -55,13 +62,15 @@ public class ALU {
 //	}
 		return output;
 	}
-	public int compare (String input1, String input2) throws Exception{
+	public String compare (String input1, String input2) throws Exception{
 		if(input1.length()>32|| input2.length()>32) throw new Exception("Over flow input! bigger than 32 bits!");
 		int temp1=Integer.parseInt(input1,2);
 		int temp2=Integer.parseInt(input2,2);
 		int res= temp1-temp2;
-		zero= (res==0)?1:(res>0)?0:-1; //if equals -> 1 , bigger -> 0 , smaller -> -1 
-		return zero;
+		int comp;
+		comp= (res==0)?1:(res>0)?0:-1; //if equals -> 1 , bigger -> 0 , smaller -> -1 
+		if(comp == 1){ zero = true;return "1";}
+		else {zero = false;return "0";}
 	}
 	public String add (String input1, String input2) throws Exception{
 		if(input1.length()>32|| input2.length()>32) throw new Exception("Over flow input! bigger than 32 bits!");
@@ -69,12 +78,7 @@ public class ALU {
 		int temp2=Integer.parseInt(input2,2);
 		int res= temp1+temp2; //integer division only ?
 		output= Integer.toBinaryString(res); 
-		while(output.length()>32){ //truncate ?
-		if(output.length()==33){
-			carry= Integer.parseInt(output.charAt(0)+"");
-		}
-			output=output.substring(1); //cuz big endien
-	}
+		System.out.println(output);
 		return output;
 	}
 	public String subtract (String input1, String input2) throws Exception{
@@ -91,6 +95,26 @@ public class ALU {
 	}
 		return output;
 	}
+	
+	public String Or (String input1,String input2){
+		String output = "00000000000000000000000000000000";
+		for(int i = 0; i < input2.length() ; i++){
+			if(input1.charAt(i) == '1' || input2.charAt(i) == '1'){
+				output.replace(output.charAt(i), '1');
+			}
+		}
+		return output;
+	}
+	public String And (String input1,String input2){
+		String output = "00000000000000000000000000000000";
+		for(int i = 0; i < input2.length() ; i++){
+			if(input1.charAt(i) == '1' && input2.charAt(i) == '1'){
+				output.replace(output.charAt(i), '1');
+			}
+		}
+		return output;
+	}
+	
 //	public String getInput1() {
 //		return input1;
 //	}
@@ -103,10 +127,10 @@ public class ALU {
 //	public void setInput2(String input2) {
 //		this.input2 = input2;
 //	}
-	public int getZero() {
+	public boolean isZero() {
 		return zero;
 	}
-	public void setZero(int zero) {
+	public void setZero(boolean zero) {
 		this.zero = zero;
 	}
 	public int getCarry() {
@@ -121,4 +145,6 @@ public class ALU {
 	public void setOutput(String output) {
 		this.output = output;
 	}
+	
 }
+

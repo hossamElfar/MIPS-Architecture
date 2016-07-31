@@ -3,7 +3,7 @@ public class MUX {
 	
 	String input1 , input2;
 	
-	public MUX(String in1 , String in2){
+	public void setInputs(String in1 , String in2){
 		input1 = in1;
 		input2 = in2;
 	}
